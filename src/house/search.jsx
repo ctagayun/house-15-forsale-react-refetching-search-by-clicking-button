@@ -23,14 +23,14 @@ import HouseRow from './houserow';
     id,
     value,          //this prop was assigned {stateOfSearchComponent}
     type = 'text',
-    onInputChangeSubmit, //this prop was assigned {handleSearchSubmit} the callback
     onInputChange,
     isFocused,
     children,
+    handleSearchSubmit
    }) => { 
      const inputRef = React.useRef();
 
-     React.useEffect(() => {
+    React.useEffect(() => {
        if (isFocused && inputRef.current) {
          inputRef.current.focus();
        }
@@ -50,7 +50,7 @@ import HouseRow from './houserow';
          <button //(AA) this button confirms the search and executes the data request.
         type="button"
         disabled={!value} //
-        onClick={onInputChangeSubmit} //CC
+        onClick={handleSearchSubmit} //CC
       >
         Submit
       </button>

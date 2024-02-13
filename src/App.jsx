@@ -408,7 +408,7 @@ const App = () => {
         dispatchHouses({ type: 'HOUSES_FETCH_FAILURE' })
       );
 
-      }, [stateOfSearchComponent]);  // (D) changed this from empty [] because we want
+      }, [url]);  // (D) changed this from empty [] because we want
                               //we also want to run the side-effect when the 
                               //stateOfSearchComponent state changes
   /*  
@@ -497,8 +497,8 @@ const App = () => {
        id="search"
        value={stateOfSearchComponent}
        isFocused //pass imperatively a dedicated  prop. isFocused as an attribute is equivalent to isFocused={true}
-       onInputChangeSubmit={handleSearchSubmit} //CC
        onInputChange = {handleSearchInput}
+       handleSearchSubmit = {handleSearchSubmit}
      >
       </Search>
       <br></br>
