@@ -15,15 +15,10 @@ Concepts to Remember:
     useEffect takes functions as paameters. In the fucntion, the effect 
   is performed. For example we can fetch data from an API for example
 ===============================================
-Task Explicit Data Fetching
-  Hints:
-    - add submit button to Search component
-
-
-================================================
-Previous Task: Refetch Data:
+Current Task Refetch Data:
 
    - make search a server-side search
+    
 
     Since we fetch data with a predefined query (in this case: 'react'), 
     we consistently see stories related to "React." Despite having a 
@@ -263,7 +258,11 @@ const App = () => {
   setSearchTerm */
   const [stateOfSearchComponent, setSearchTerm] =  useStorageState ( //<-- custom hook
     'search', //key
-    '',  //Initial state
+    'React',  //Initial state
+    );
+
+    const [url, setUrl] = React.useState(
+      `${API_ENDPOINT}${stateOfSearchComponent}`
     );
 
   /* Step 1: Steps in using React.useReducer:
@@ -395,8 +394,7 @@ const App = () => {
 
       dispatchHouses({ type: 'HOUSES_FETCH_INIT' }); //type needed to be added to houseReducer
    
-      //fetch(`${API_ENDPOINT}${stateOfSearchComponent}`)  //(C) - dynamically append search criteria
-      fetch(url)
+      fetch(`${API_ENDPOINT}${stateOfSearchComponent}`)  //(C) - dynamically append search criteria
       .then((response) => response.json())
       .then((result) => {
         dispatchHouses({
@@ -408,7 +406,7 @@ const App = () => {
         dispatchHouses({ type: 'HOUSES_FETCH_FAILURE' })
       );
 
-      }, [url]);  // (D) changed this from empty [] because we want
+      }, [stateOfSearchComponent]);  // (D) changed this from empty [] because we want
                               //we also want to run the side-effect when the 
                               //stateOfSearchComponent state changes
   /*  
@@ -455,20 +453,11 @@ const App = () => {
     It is another state transition because it deletes a record.
    */
    
-  //(BB) rename handler handleSearch to handleSearchInput
-  ///renamed handler of the input field still sets 
-  //the stateful searchTerm,
   const handleSearchInput = (event) => {
       setSearchTerm(event.target.value); 
    };
 
-  //(CC) create new handler for the button.
-  //While the renamed handler of the input field still sets 
-  //the stateful searchTerm ... the new handler of the button 
-  //sets the new stateful value called 'url' which is derived 
-  //from the current searchTerm and the static API endpoint 
-  //as a new state
-  const handleSearchSubmit = () => {  //CC
+   const handleSearchSubmit = () => {
     setUrl(`${API_ENDPOINT}${stateOfSearchComponent}`);
   };
 
@@ -482,12 +471,7 @@ const App = () => {
    //   house.title.toLowerCase().includes(stateOfSearchComponent.toLowerCase())
    // );
     
-   //(DD) new handler of the button sets the new stateful value 
-  //called 'url' which is derived from the current searchTerm and 
-  //the static API endpoint as a new state:
-  const [url, setUrl] = React.useState(
-    `${API_ENDPOINT}${stateOfSearchComponent}`
-  );
+
   
   return (
     <>
@@ -497,9 +481,9 @@ const App = () => {
        id="search"
        value={stateOfSearchComponent}
        isFocused //pass imperatively a dedicated  prop. isFocused as an attribute is equivalent to isFocused={true}
-       onInputChange = {handleSearchInput}
-       handleSearchSubmit = {handleSearchSubmit}
-     >
+       onInputChange={handleSearchInput}
+       //onClick = {handleSearchSubmit}
+      >
       </Search>
       <br></br>
 
