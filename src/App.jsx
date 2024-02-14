@@ -261,6 +261,8 @@ const App = () => {
     'React',  //Initial state
     );
 
+    //useState for state called URL - this is 
+    //to be used in submit button to trigger search
     const [url, setUrl] = React.useState(
       `${API_ENDPOINT}${stateOfSearchComponent}`
     );
@@ -453,6 +455,10 @@ const App = () => {
     It is another state transition because it deletes a record.
    */
    
+  //This is a function that call the state 
+  //updater "setSearchTerm()" to update the state
+  //called "stateOfSearchComponent" which contains 
+  //the search criteria typed in the search text box
   const handleSearchInput = (event) => {
       setSearchTerm(event.target.value); 
    };
