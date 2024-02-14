@@ -23,7 +23,8 @@ import HouseRow from './houserow';
     id,
     value,          //this prop was assigned {stateOfSearchComponent}
     type = 'text',
-    onInputChange, //this prop was assigned {handleSearch} the callback
+    onInputChange, //this prop was assigned {handleSearchInput} the callback
+    onClicking, //this prop was assigned {handlleSearchSubmit}
     isFocused,
     children,
    }) => { 
@@ -47,11 +48,11 @@ import HouseRow from './houserow';
            onChange={onInputChange} //points to HandleSearchInput
          />
          &nbsp;
-        <button 
+        <button        ///AAA
             type="button"
             className="btn btn-primary" 
             disabled={!value}
-           // onClick={onClick}
+            onClick={onClicking} //points to handleSearchSubmit
          >
             Search
         </button>

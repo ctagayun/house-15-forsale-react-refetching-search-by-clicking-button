@@ -14,8 +14,18 @@ Concepts to Remember:
 
     useEffect takes functions as paameters. In the fucntion, the effect 
   is performed. For example we can fetch data from an API for example
+===============================================  
 ===============================================
-Current Task Refetch Data:
+Task Explicit Data Fetching 
+  - call API to fetch only when submit button is clicked
+  - we need two state:
+      - state for search input box 
+      - state for confirmed search
+  - first create a submit button in Search component
+
+
+===============================================
+Previous  Task Refetch Data:
 
    - make search a server-side search
     
@@ -214,7 +224,53 @@ import Header from "./header";
 import List from './house/List';
 import Search from './house/search';
 
-const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
+
+const housesReducer = (state, action) => { //always receives a state and action
+  switch (action.type){ //this is what it means by reducer function
+                        //specifies how should state change based
+                        //on the "action" passed by the reducerDispatch()
+
+    //Very impt: For every state transition, we return a new state object 
+    //which contains all the key/value pairs from the current state object 
+    //(via JavaScript's spread operator) and the new overwriting properties. 
+    //For example, HOUSES_FETCH_FAILURE sets the isLoading boolean to false 
+    //and sets the isError boolean to true, while keeping all the the other 
+    //state intact (e.g. data alias houses).                     
+    case 'HOUSES_FETCH_INIT':
+      return {
+        ...state,
+        isLoading: true,
+        isError: false,
+      };
+
+    case 'HOUSES_FETCH_SUCCESS':
+        return {
+          ...state,
+          isLoading: false,
+          isError: false,
+          data: action.payload,
+        };
+
+    case 'HOUSES_FETCH_FAILURE':
+      return {
+        ...state,
+        isLoading: false,
+        isError: true,
+      };
+
+    case 'DELETE_HOUSE':
+      return {
+        ...state,
+        data: state.data.filter(
+        (house) => action.payload.objectID !== house.objectID
+        ),
+      };
+
+    //default:
+    //   throw new Error();
+    }
+  };
+
 /* The following  is a custom hook that will store the state in a 
   local storage. useStorageState which will keep the component's 
   state in sync with the browser's local storage.
@@ -229,6 +285,7 @@ and accepts an initial state as argument.
     1. searchTerm renamed to 'value'
     2. setSearchTerm renamed to 'setValue'
 */
+  //State for the previous search criteria typed in the search box
   const useStorageState = (key, initialState) => {
       const [value, setValue] = React.useState(
           localStorage.getItem('key') || initialState 
@@ -246,7 +303,8 @@ and accepts an initial state as argument.
   
   } //EOF create custom hook
     
-     
+  const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
+  
 const App = () => {
 
    const welcome = {
@@ -254,16 +312,17 @@ const App = () => {
      title: 'Houses for Sale',
    };
  
-  /* Call custom useStorageState hook to assign value to stateOfSearchComponent, 
+  /* State of what was type in the search text box
+  Call custom useStorageState hook to assign value to stateOfSearchComponent, 
   setSearchTerm */
-  const [stateOfSearchComponent, setSearchTerm] =  useStorageState ( //<-- custom hook
+  const [stateOfSearchComponent, setSearchTerm] =  useStorageState ( 
     'search', //key
     'React',  //Initial state
     );
 
-    //useState for state called URL - this is 
-    //to be used in submit button to trigger search
-    const [url, setUrl] = React.useState(
+   //useState for state called URL that constantly change  - this is 
+   //to be used in submit button to trigger search
+   const [url, setUrl] = React.useState(
       `${API_ENDPOINT}${stateOfSearchComponent}`
     );
 
@@ -275,71 +334,6 @@ const App = () => {
    based on the current state and the action.
   */
   
-   const housesReducer = (state, action) => { //always receives a state and action
-      switch (action.type){ //this is what it means by reducer function
-                            //specifies how should state change based
-                            //on the "action" passed by the reducerDispatch()
-
-        //Very impt: For every state transition, we return a new state object 
-        //which contains all the key/value pairs from the current state object 
-        //(via JavaScript's spread operator) and the new overwriting properties. 
-        //For example, HOUSES_FETCH_FAILURE sets the isLoading boolean to false 
-        //and sets the isError boolean to true, while keeping all the the other 
-        //state intact (e.g. data alias houses).                     
-        case 'HOUSES_FETCH_INIT':
-          return {
-            ...state,
-            isLoading: true,
-            isError: false,
-          };
-
-        case 'HOUSES_FETCH_FAILURE':
-          return {
-            ...state,
-            isLoading: false,
-            isError: true,
-          };
-
-        case 'HOUSES_FETCH_SUCCESS':
-          return {
-            ...state,
-            isLoading: false,
-            isError: false,
-            data: action.payload,
-          };
-        //case 'GET_HOUSES':
-        //  return action.payload; //specifies how should state change  
-
-        case 'DELETE_HOUSE':
-          //return state.filter(
-          //  (house) => action.payload.objectID !== house.objectID  
-          //);
-          //Observe how the DELETE_HOUSE action changed as well. 
-          //It operates on the state.data, and no longer just on the 
-          //plain state. The state is a complex object with data, isLoading, 
-          //and error states rather than just a list of stories. This has 
-          //to be solved in the remaining code by addressing the state as 
-          //object and not as array anymore:
-          return {
-            ...state,
-            data: state.data.filter(
-              (house) => action.payload.objectID !== house.objectID
-            ),
-          };
-
-        case 'ADD_HOUSE':
-          return {
-             ...state,
-             data: state.action.payload 
-          }
-
-        default:
-           throw new Error();
-      }
-       //action is always associated 
-       //with a type and "payload".
-       
-      };
 
    // Step 2: In using REACT REDUCER:
    //First lets use a Reducer instead of const [houses, setHouses] = React.useState([]);
@@ -360,60 +354,40 @@ const App = () => {
    //receives a distinct type and a payload. 
 
    //const[houses, dispatchHouses] = React.useReducer(housesReducer, []);
+
    const[houses, dispatchHouses] = React.useReducer(
         housesReducer,
         {data: [], isLoading: false, isError: false} );
 
-   //The new function receives a reducer function called "housesReducer"
-   //(see line 251)
-   //and empty array [] and returns an array with two items:
-   //          houses (current state) and
-   //          dispatchHouses (state updater function)
-   //The updater function updates the state "houses" IMPLICITLY (A)
-   //dispatching an "action" for the reducer, The "action" comes with:
-   //
-   //     1. Type
-   //     2. and optional Payload
- 
-   
 
-  /*Step 3: Handle all functions that modify state. 
-     The first state transition function is 
-          getAsyncHouses(). 
-   
-    It is a STATE transition becuase it fetches the data for the 'house" object.
-    Modify useEffect to use "dispatchHouses" reducer function (B)
-    We want to start off with an empty list of stories and simulate 
-    fetching these stories asynchronously. In a new useEFFECT hook, call the 
-    function and resolve the returned promise as a side-effect.*/
-    React.useEffect(() => {   
-       
-     // if `stateOfSearchComponent` is not present  
-     // e.g. null, empty string, undefined
-     // do nothing
-     // more generalized condition than searchTerm === ''
-      if (!stateOfSearchComponent) return;   //(B)
+  const handleFetchHouses = React.useCallback(() => {  //DDD
+    dispatchHouses({ type: 'STORIES_FETCH_INIT' });
 
-      dispatchHouses({ type: 'HOUSES_FETCH_INIT' }); //type needed to be added to houseReducer
-   
-      fetch(`${API_ENDPOINT}${stateOfSearchComponent}`)  //(C) - dynamically append search criteria
+    fetch(url)
       .then((response) => response.json())
       .then((result) => {
         dispatchHouses({
-          type: 'HOUSES_FETCH_SUCCESS',
+          type: 'STORIES_FETCH_SUCCESS',
           payload: result.hits,
         });
       })
       .catch(() =>
-        dispatchHouses({ type: 'HOUSES_FETCH_FAILURE' })
+      dispatchHouses({ type: 'STORIES_FETCH_FAILURE' })
       );
+  }, [url]);     
+   
+   /* Next create a useEffect hook for handleFetchHouses
+      Instead of running the data fetching side-effect on 
+      every stateOfSearchComponent change (which happens each time the input 
+      field's value changes like we have seen before), the new 
+      stateful url is used whenever a user changes it by confirming 
+      a search request when clicking the button:
+   */
+    React.useEffect(() => {
+        handleFetchHouses();
+    }, [handleFetchHouses]);
 
-      }, [stateOfSearchComponent]);  // (D) changed this from empty [] because we want
-                              //we also want to run the side-effect when the 
-                              //stateOfSearchComponent state changes
-  /*  
-
-    Next we write event handler which removes an item from HouseList
+   /*Next we write event handler which removes an item from HouseList
     Select the record from the state called 'houses' based on the filter
     Here, the JavaScript array's built-in filter method creates
     a new filtered array called 'house'.
@@ -448,37 +422,20 @@ const App = () => {
         payload: item,
       });
     };
-  
-  /*STEP 5:The third state transition we want to handle using  
-     dispatchHouses() reducer function is: 
-          handleAddHouse()  
-    It is another state transition because it deletes a record.
-   */
    
   //This is a function that call the state 
   //updater "setSearchTerm()" to update the state
   //called "stateOfSearchComponent" which contains 
   //the search criteria typed in the search text box
-  const handleSearchInput = (event) => {
+  const handleSearchInput = (event) => {   //BBB
       setSearchTerm(event.target.value); 
    };
 
-   const handleSearchSubmit = () => {
+   const handleSearchSubmit = () => {   //CCC
     setUrl(`${API_ENDPOINT}${stateOfSearchComponent}`);
   };
 
-   //"house" is the array of houses newly created by the filter() method.
-   //const searchedHouses = houses.filter((house) =>
-
-   // (A) - Removed this because we will receive the stories filtered by 
-   //search term from the API. Pass only 
-   //the regular stories to the List component:
-  //const searchedHouses = houses.data.filter((house) => //need to append "data.filter"
-   //   house.title.toLowerCase().includes(stateOfSearchComponent.toLowerCase())
-   // );
-    
-
-  
+     
   return (
     <>
      <Header  headerText={welcome} />   
@@ -487,11 +444,10 @@ const App = () => {
        id="search"
        value={stateOfSearchComponent}
        isFocused //pass imperatively a dedicated  prop. isFocused as an attribute is equivalent to isFocused={true}
-       onInputChange={handleSearchInput}
-       //onClick = {handleSearchSubmit}
+       onInputChange={handleSearchInput}  //BBB
+       onClicking = {handleSearchSubmit}  //CCC
       >
       </Search>
-      <br></br>
 
       {houses.isError && <p>Error in fetching data...</p>}
       
