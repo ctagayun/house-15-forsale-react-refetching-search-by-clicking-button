@@ -77,7 +77,7 @@
 import * as React from 'react';
 import './App.css'
 import Header from "./header";
-//import List from './house/List';
+import List from './house/List';
 import Search from './house/search';
 
 const storiesReducer = (state, action) => {
@@ -237,10 +237,6 @@ const App = () => {
         <p>Loading ...</p>
       ) : (
         <List
-          //list={searchedStories} //First, remove searchedStories because we will 
-                                   //receive the stories filtered by search term 
-                                   //from the API. Pass only the regular stories 
-                                   //to the List component:
           list={stories.data}
           onRemoveItem={handleRemoveStory}
         />
@@ -250,33 +246,6 @@ const App = () => {
 };
 
 
-const List = ({ list, onRemoveItem }) => (
-  <ul>
-    {list.map((item) => (
-      <Item
-        key={item.objectID}
-        item={item}
-        onRemoveItem={onRemoveItem}
-      />
-    ))}
-  </ul>
-);
-
-const Item = ({ item, onRemoveItem }) => (
-  <li>
-    <span>
-      <a href={item.url}>{item.title}</a>
-    </span>
-    <span>{item.author}</span>
-    <span>{item.num_comments}</span>
-    <span>{item.points}</span>
-    <span>
-      <button type="button" onClick={() => onRemoveItem(item)}>
-        Dismiss
-      </button>
-    </span>
-  </li>
-);
 
 export default App;
 
