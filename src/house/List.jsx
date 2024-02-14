@@ -2,11 +2,9 @@
 import * as React from 'react';
 import Item from './item';
 
-const List = ({ list, onRemoveItem }) => 
+const List = ({ list, onRemoveItem }) => //onRemoveItem points to handleRemoveStory
  
   {
-    const mySearchHouses = JSON.stringify(list);
-    console.log("SearchedHouses = " + mySearchHouses );
     return (
       <>
         <div className="row mb-2">
